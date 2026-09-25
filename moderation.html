@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Moderator | The Kenzie Report</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#071525;--red:#c51f35;--paper:#f4f2ed;--white:#fff;--ink:#111820;--muted:#69717b;--line:#d8d8d3}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif}.wrap{max-width:920px;margin:auto;padding:0 22px}
+.top{background:var(--navy);color:#fff;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:10px 0}.top .wrap{display:flex;justify-content:space-between;gap:12px}
+header{background:#fff;border-bottom:1px solid var(--line)}.head{min-height:88px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink)}.mark{width:58px;height:58px;object-fit:cover}.brand h1{font:900 25px/.9 Georgia,serif;margin:0}.brand small{display:block;margin-top:8px;color:var(--muted);font-size:9px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
+main{padding:55px 0 80px}.back{display:inline-block;color:var(--red);font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;text-decoration:none;margin-bottom:22px}.eyebrow{color:var(--red);font-size:10px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px}h2{font:900 48px/.98 Georgia,serif;margin:0 0 28px}.card{background:#fff;border:1px solid var(--line);padding:28px}.card h3{font:700 28px/1.1 Georgia,serif;margin:0 0 9px}.note{color:var(--muted);font-size:13px;line-height:1.55;margin:0 0 20px}
+input{width:100%;border:1px solid #cfcfca;background:#fff;padding:14px;font:inherit;color:var(--ink);outline:none;margin-bottom:10px}input:focus{border-color:var(--navy)}button{border:0;cursor:pointer;font:900 10px/1 Arial;text-transform:uppercase;letter-spacing:.08em;padding:13px 16px}.primary{background:var(--navy);color:#fff}.secondary{background:#ecebe7;color:var(--ink);margin-left:8px}.danger{background:var(--red);color:#fff}.status{font-size:12px;color:var(--muted);margin-top:15px;line-height:1.5}.status.error{color:var(--red)}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.toolbar h3{margin:0}.report{border-top:1px solid var(--line);padding:18px 0}.report:first-child{border-top:0;padding-top:0}.meta{font-size:10px;color:var(--muted);margin-bottom:8px}.body{font-size:14px;line-height:1.55;margin-bottom:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.empty{color:var(--muted);font-size:13px;padding:12px 0}footer{background:var(--navy);color:#fff;padding:28px 0;font-size:11px}footer strong{font:900 18px Georgia,serif}footer p{color:#c8ced5}
+@media(max-width:600px){.top .wrap{font-size:9px}.head{min-height:76px}.mark{width:48px;height:48px}.brand h1{font-size:21px}.brand small{font-size:7px}.wrap{padding:0 22px}main{padding:38px 0 60px}h2{font-size:40px}.card{padding:20px}.secondary{margin-left:0;margin-top:8px}.toolbar{align-items:flex-start}.toolbar button{flex-shrink:0}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap"><span>Private moderator area</span><span>The Kenzie Report</span></div></div>
+<header><div class="wrap head"><a class="brand" href="./"><img class="mark" src="file_0000000034f082109544544298d4f696.png" alt="The Kenzie Report logo"><div><h1>THE KENZIE REPORT</h1><small>Politics. Britain. Unfiltered.</small></div></a></div></header>
+<main><div class="wrap">
+<a class="back" href="./">← Back to The Kenzie Report</a>
+<div class="eyebrow">Staff access</div><h2>Moderator dashboard</h2>
+<div class="card">
+<div id="login">
+<h3>Sign in</h3><p class="note">Use your moderator account to review reports and manage comments.</p>
+<input id="email" type="email" autocomplete="username" placeholder="Email address">
+<input id="password" type="password" autocomplete="current-password" placeholder="Password">
+<button class="primary" onclick="signIn()">Sign in</button>
+<div id="loginStatus" class="status"></div>
+</div>
+<div id="dashboard" style="display:none">
+<div class="toolbar"><h3>Open reports</h3><div><button class="secondary" onclick="loadReports()">Refresh</button><button class="secondary" onclick="signOut()">Sign out</button></div></div>
+<div id="reports"></div><div id="dashStatus" class="status"></div>
+</div>
+</div></div></main>
+<footer><div class="wrap"><strong>THE KENZIE REPORT</strong><p>Private moderation tools. Keep access credentials secure.</p></div></footer>
+<script>
+const SUPABASE_URL="https://rdktumkngbzdlfhshkng.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_s0NSbYe94FJN93FfVhh32Q_JkOHU5pw";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(v){const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
+function setStatus(id,msg,error=false){const el=document.getElementById(id);if(el){el.textContent=msg;el.className='status'+(error?' error':'')}}
+async function signIn(){
+ const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+ if(!email||!password){setStatus('loginStatus','Enter your email and password.',true);return}
+ setStatus('loginStatus','Signing in…');
+ const r=await sb.auth.signInWithPassword({email,password});
+ if(r.error){setStatus('loginStatus',r.error.message,true);return}
+ await loadReports();
+}
+async function signOut(){await sb.auth.signOut();document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';document.getElementById('password').value='';setStatus('loginStatus','Signed out.')}
+async function loadReports(){
+ const s=await sb.auth.getSession();const user=s.data?.session?.user;
+ if(!user){document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';return}
+ const check=await sb.from('debate_moderators').select('user_id').eq('user_id',user.id).maybeSingle();
+ if(check.error){setStatus('loginStatus',check.error.message,true);return}
+ if(!check.data){document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';setStatus('loginStatus','This account is not authorised as a moderator.',true);await sb.auth.signOut();return}
+ document.getElementById('login').style.display='none';document.getElementById('dashboard').style.display='block';
+ const box=document.getElementById('reports');box.innerHTML='<div class="empty">Loading reports…</div>';
+ const r=await sb.from('debate_comment_reports').select('id,comment_id,user_id,reason,status,created_at,debate_comments(display_name,body,debate_id)').eq('status','open').order('created_at',{ascending:true});
+ if(r.error){box.innerHTML='';setStatus('dashStatus',r.error.message,true);return}
+ const rows=r.data||[];
+ box.innerHTML=rows.length?rows.map(x=>`<div class="report"><div class="meta">${esc(fmt(x.created_at))} · Open report</div><div class="body"><strong>${esc(x.debate_comments?.display_name||'Unknown')}</strong>: ${esc(x.debate_comments?.body||'[comment unavailable]')}<br><br><strong>Reason:</strong> ${esc(x.reason||'No reason given')}</div><div class="actions"><button class="danger" onclick="moderate('${esc(x.comment_id)}','${esc(x.id)}',true)">Hide comment</button><button class="secondary" onclick="moderate('${esc(x.comment_id)}','${esc(x.id)}',false)">Dismiss report</button></div></div>`).join(''):'<div class="empty">No open reports. You’re all clear. ✓</div>';
+ setStatus('dashStatus',rows.length+' open '+(rows.length===1?'report':'reports'));
+}
+async function moderate(commentId,reportId,hide){
+ const s=await sb.auth.getSession();if(!s.data?.session)return;
+ const check=await sb.from('debate_moderators').select('user_id').eq('user_id',s.data.session.user.id).maybeSingle();
+ if(check.error||!check.data){setStatus('dashStatus','Moderator access could not be verified.',true);return}
+ if(hide){
+  const cr=await sb.from('debate_comments').update({status:'hidden',updated_at:new Date().toISOString()}).eq('id',commentId);
+  if(cr.error){setStatus('dashStatus',cr.error.message,true);return}
+ }
+ const rr=await sb.from('debate_comment_reports').update({status:hide?'reviewed':'dismissed'}).eq('id',reportId);
+ if(rr.error){setStatus('dashStatus',rr.error.message,true);return}
+ await loadReports();
+}
+(async()=>{const s=await sb.auth.getSession();if(s.data?.session)await loadReports()})();
+</script>
+</body>
+</html>
