@@ -46,6 +46,9 @@ content:
         label: Feature on homepage
         type: boolean
         default: false
+      - name: excerpt
+        label: Standfirst
+        type: string
       - name: body
         label: Article
         type: rich-text
