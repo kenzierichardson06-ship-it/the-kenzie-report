@@ -1,0 +1,25 @@
+media:
+  input: images
+  output: /images
+
+content:
+  - name: articles
+    label: Articles
+    type: collection
+    path: articles
+    fields:
+      - name: title
+        label: Headline
+        type: string
+      - name: date
+        label: Date
+        type: date
+      - name: section
+        label: Section
+        type: string
+      - name: image
+        label: Featured Image
+        type: image
+      - name: body
+        label: Article
+        type: rich-text
