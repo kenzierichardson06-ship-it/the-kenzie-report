@@ -1,0 +1,36 @@
+name: Use real Kenzie Report banner
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  replace-banner:
+    if: ${{ github.event.head_commit.message != 'Use real Kenzie Report banner [skip ci]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace banner markup
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_text()
+          start = s.index('<div class="brand-banner">')
+          end = s.index('</div></div>', start) + len('</div></div>')
+          new = '<div class="brand-banner"><div class="wrap"><img class="brand-banner-img" src="kenzie-report-banner.jpg" alt="The Kenzie Report — Politics. Britain. Unfiltered."></div></div>'
+          s = s[:start] + new + s[end:]
+          s = s.replace('.brand-banner-svg{display:block;width:100%;height:230px;border:1px solid rgba(255,255,255,.12)}@media(max-width:600px){.brand-banner{padding:10px 0}.brand-banner-svg{height:125px}}',
+                        '.brand-banner-img{display:block;width:100%;height:230px;object-fit:cover;object-position:center;border:1px solid rgba(255,255,255,.12)}@media(max-width:600px){.brand-banner{padding:10px 0}.brand-banner-img{height:125px}}')
+          p.write_text(s)
+          PY
+      - name: Commit banner
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Use real Kenzie Report banner [skip ci]"
+          git push
