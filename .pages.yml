@@ -9,7 +9,7 @@ content:
     path: articles
     filename: "{primary}.md"
     view:
-      fields: [title, section, date]
+      fields: [title, section, featured, date]
       primary: title
       sort: [date, title]
       default:
@@ -42,6 +42,10 @@ content:
       - name: image
         label: Featured Image
         type: image
+      - name: featured
+        label: Feature on homepage
+        type: boolean
+        default: false
       - name: body
         label: Article
         type: rich-text
