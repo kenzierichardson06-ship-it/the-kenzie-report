@@ -7,19 +7,75 @@ content:
     label: Articles
     type: collection
     path: articles
+    filename: "{primary}.md"
+    view:
+      fields: [title, section, date]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+      search: [title, section]
     fields:
       - name: title
         label: Headline
         type: string
+        required: true
       - name: date
         label: Date
         type: date
+        required: true
       - name: section
         label: Section
-        type: string
+        type: select
+        required: true
+        options:
+          - Politics
+          - Britain
+          - Reform
+          - Westminster
+          - Economy
+          - NHS
+          - Immigration
+          - Opinion
+          - Analysis
       - name: image
         label: Featured Image
         type: image
       - name: body
         label: Article
+        type: rich-text
+        required: true
+
+  - name: breaking
+    label: Breaking News
+    type: collection
+    path: breaking
+    filename: "{primary}.md"
+    view:
+      fields: [title, active, date]
+      primary: title
+      sort: [date, title]
+      default:
+        sort: date
+        order: desc
+      search: [title]
+    fields:
+      - name: title
+        label: Breaking headline
+        type: string
+        required: true
+      - name: active
+        label: Show on site
+        type: boolean
+        default: true
+      - name: date
+        label: Date and time
+        type: date
+        required: true
+      - name: url
+        label: Link (optional)
+        type: string
+      - name: body
+        label: Notes (optional)
         type: rich-text
