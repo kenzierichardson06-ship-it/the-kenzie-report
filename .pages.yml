@@ -79,3 +79,43 @@ content:
       - name: body
         label: Notes (optional)
         type: rich-text
+  - name: polls
+    label: Polls
+    type: collection
+    path: polls
+    filename: "{primary}.md"
+    view:
+      fields: [question, active, date]
+      primary: question
+      sort: [date, question]
+      default:
+        sort: date
+        order: desc
+      search: [question]
+    fields:
+      - name: question
+        label: Poll question
+        type: string
+        required: true
+      - name: active
+        label: Show on site
+        type: boolean
+        default: true
+      - name: date
+        label: Date
+        type: date
+        required: true
+      - name: option1
+        label: Option 1
+        type: string
+        required: true
+      - name: option2
+        label: Option 2
+        type: string
+        required: true
+      - name: option3
+        label: Option 3
+        type: string
+      - name: option4
+        label: Option 4
+        type: string
