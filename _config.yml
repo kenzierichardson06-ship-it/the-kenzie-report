@@ -1,0 +1,13 @@
+title: The Kenzie Report
+description: Politics. Britain. Unfiltered.
+url: https://thekenziereport.co.uk
+baseurl: ""
+markdown: kramdown
+kramdown:
+  input: GFM
+defaults:
+  - scope:
+      path: "articles"
+    values:
+      layout: article
+      permalink: /articles/:basename.html
