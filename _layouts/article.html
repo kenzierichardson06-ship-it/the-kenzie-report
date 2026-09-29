@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{ page.title }} | The Kenzie Report</title>
+<meta name="description" content="{{ page.seo_description | default: page.excerpt | default: site.description | escape }}">
+<link rel="canonical" href="{{ site.url }}/articles/{{ page.name | replace: '.md','' }}.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="The Kenzie Report">
+<meta property="og:title" content="{{ page.social_title | default: page.title | escape }}">
+<meta property="og:description" content="{{ page.seo_description | default: page.excerpt | default: site.description | escape }}">
+<meta property="og:url" content="{{ site.url }}/articles/{{ page.name | replace: '.md','' }}.html">
+{% assign social_image = page.social_image | default: page.image %}
+{% if social_image %}<meta property="og:image" content="{{ social_image | absolute_url }}">{% endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page.social_title | default: page.title | escape }}">
+<meta name="twitter:description" content="{{ page.seo_description | default: page.excerpt | default: site.description | escape }}">
+{% if social_image %}<meta name="twitter:image" content="{{ social_image | absolute_url }}">{% endif %}
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"NewsArticle","headline":{{ page.title | jsonify }},"description":{{ page.seo_description | default: page.excerpt | default: site.description | jsonify }},"datePublished":{{ page.date | jsonify }},"author":{"@type":"Person","name":{{ page.author | default: "The Kenzie Report" | jsonify }}},"publisher":{"@type":"Organization","name":"The Kenzie Report","logo":{"@type":"ImageObject","url":"{{ site.url }}/file_0000000034f082109544544298d4f696.png"}}}</script>
+<style>
+:root{--navy:#071525;--red:#c51f35;--paper:#f4f2ed;--ink:#111820;--muted:#69717b;--line:#d8d8d3}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,Helvetica,sans-serif}.wrap{max-width:1040px;margin:auto;padding:0 22px}header{background:#fff;border-bottom:1px solid var(--line);padding:18px 0}.brand{display:flex;gap:12px;align-items:center;text-decoration:none;color:inherit}.brand img{width:48px;height:48px}.brand strong{font:700 24px Georgia,serif}.brand span{display:block;color:var(--muted);font-size:8px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;margin-top:4px}.top{background:var(--navy);color:#fff;padding:9px 0;font-size:9px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.back{display:inline-block;color:var(--red);font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;margin:28px 0 18px}.article{background:#fff;padding:38px 50px 60px;margin-bottom:40px}.tag{color:var(--red);font-size:9px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.article h1{font:700 clamp(44px,7vw,78px)/.94 Georgia,serif;letter-spacing:-.035em;margin:12px 0 18px}.deck{font-size:18px;line-height:1.6;color:#5d6670;max-width:780px}.meta{font-size:10px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted);padding:18px 0;border-bottom:1px solid var(--line)}.hero-image{width:100%;max-height:600px;object-fit:cover;margin:26px 0 34px}.body{max-width:760px;font:20px/1.82 Georgia,serif}.body p{margin:0 0 1.25em}.body h2,.body h3{line-height:1.1;margin-top:1.5em}.body h2{font-size:32px}.body h3{font-size:25px}.body a{color:var(--red)}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}.tags span{font-size:8px;border:1px solid var(--line);padding:5px 7px;color:var(--muted);font-weight:900}.discussion{margin-top:40px;border-top:3px solid var(--navy);padding-top:22px}.discussion a{display:inline-block;background:var(--navy);color:#fff;text-decoration:none;padding:12px 15px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.discussion a:hover{background:var(--red)}footer{background:var(--navy);color:#c8ced5;padding:28px 0;font-size:11px}@media(max-width:600px){.article{padding:28px 22px 45px}.body{font-size:18px}.article h1{font-size:43px}}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">The Kenzie Report · Politics. Britain. Unfiltered.</div></div>
+<header><div class="wrap"><a class="brand" href="{{ site.url }}/"><img src="{{ site.url }}/file_0000000034f082109544544298d4f696.png" alt=""><div><strong>THE KENZIE REPORT</strong><span>Politics. Britain. Unfiltered.</span></div></a></div></header>
+<div class="wrap">
+<a class="back" href="{{ site.url }}/">← Back to The Kenzie Report</a>
+<article class="article">
+<span class="tag">{{ page.section | default: "Politics" }}</span>
+<h1>{{ page.title }}</h1>
+{% if page.excerpt %}<p class="deck">{{ page.excerpt }}</p>{% endif %}
+<div class="meta">{{ page.author | default: "The Kenzie Report" }} · {{ page.date | date: "%d %b %Y" }}</div>
+{% if page.tags %}<div class="tags">{% assign tags = page.tags | split: "," %}{% for tag in tags %}<span>{{ tag }}</span>{% endfor %}</div>{% endif %}
+{% if page.image %}<img class="hero-image" src="{{ page.image | absolute_url }}" alt="{{ page.title | escape }}">{% endif %}
+<div class="body">{{ content }}</div>
+<div class="discussion"><p>This article is part of The Kenzie Report archive. For reader comments, likes, polls and the interactive publication view:</p><a href="{{ site.url }}/?article={{ page.name | replace: '.md','' }}">Open the interactive article →</a></div>
+</article>
+</div>
+<footer><div class="wrap">© 2026 The Kenzie Report · <a href="{{ site.url }}/privacy.html" style="color:#fff">Privacy</a> · <a href="{{ site.url }}/editorial.html" style="color:#fff">Editorial policy</a></div></footer>
+</body></html>
