@@ -26,7 +26,7 @@ content:
         type: date
         required: true
       - name: section
-        label: Section
+        label: Topic
         type: select
         required: true
         options:
