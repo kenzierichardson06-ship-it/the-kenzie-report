@@ -15,7 +15,7 @@ main{padding:55px 0 80px}.back{display:inline-block;color:var(--red);font-size:1
 input{width:100%;border:1px solid #cfcfca;background:#fff;padding:14px;font:inherit;color:var(--ink);outline:none;margin-bottom:10px}input:focus{border-color:var(--navy)}button{border:0;cursor:pointer;font:900 10px/1 Arial;text-transform:uppercase;letter-spacing:.08em;padding:13px 16px}.primary{background:var(--navy);color:#fff}.secondary{background:#ecebe7;color:var(--ink);margin-left:8px}.danger{background:var(--red);color:#fff}.status{font-size:12px;color:var(--muted);margin-top:15px;line-height:1.5}.status.error{color:var(--red)}
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.toolbar h3{margin:0}.report{border-top:1px solid var(--line);padding:18px 0}.report:first-child{border-top:0;padding-top:0}.meta{font-size:10px;color:var(--muted);margin-bottom:8px}.body{font-size:14px;line-height:1.55;margin-bottom:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.empty{color:var(--muted);font-size:13px;padding:12px 0}footer{background:var(--navy);color:#fff;padding:28px 0;font-size:11px}footer strong{font:900 18px Georgia,serif}footer p{color:#c8ced5}
 @media(max-width:600px){.top .wrap{font-size:9px}.head{min-height:76px}.mark{width:48px;height:48px}.brand h1{font-size:21px}.brand small{font-size:7px}.wrap{padding:0 22px}main{padding:38px 0 60px}h2{font-size:40px}.card{padding:20px}.secondary{margin-left:0;margin-top:8px}.toolbar{align-items:flex-start}.toolbar button{flex-shrink:0}}
-</style>
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 22px}.stat-card{background:#f7f6f2;border:1px solid var(--line);padding:16px}.stat-card strong{display:block;font:700 27px Georgia,serif}.stat-card span{font-size:9px;color:var(--muted);font-weight:900;letter-spacing:.08em;text-transform:uppercase}.tabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin-bottom:18px}.tab{background:#ecebe7;color:var(--ink)}.tab.active{background:var(--navy);color:#fff}.report-row{border-top:1px solid var(--line);padding:15px 0}.report-row:first-child{border-top:0}.comment-state{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}.sub-row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding:12px 0;font-size:12px}.sub-row:first-child{border-top:0}.muted{color:var(--muted)}@media(max-width:700px){.stats-grid{grid-template-columns:1fr 1fr}.tabs{overflow:auto}.tab{white-space:nowrap}} </style>
 </head>
 <body>
 <div class="top"><div class="wrap"><span>Private moderator area</span><span>The Kenzie Report</span></div></div>
@@ -32,8 +32,13 @@ input{width:100%;border:1px solid #cfcfca;background:#fff;padding:14px;font:inhe
 <div id="loginStatus" class="status"></div>
 </div>
 <div id="dashboard" style="display:none">
-<div class="toolbar"><h3>Open reports</h3><div><button class="secondary" onclick="loadReports()">Refresh</button><button class="secondary" onclick="signOut()">Sign out</button></div></div>
-<div id="reports"></div><div id="dashStatus" class="status"></div>
+<div class="toolbar"><h3>Publication controls</h3><div><button class="secondary" onclick="loadDashboard()">Refresh</button><button class="secondary" onclick="signOut()">Sign out</button></div></div>
+<div id="stats" class="stats-grid"></div>
+<div class="tabs"><button class="tab active" onclick="showTab('reports',this)">Reports</button><button class="tab" onclick="showTab('comments',this)">Comments</button><button class="tab" onclick="showTab('newsletter',this)">Newsletter</button></div>
+<section id="reportsTab"><div class="toolbar"><h3>Open reports</h3></div><div id="reports"></div></section>
+<section id="commentsTab" style="display:none"><div class="toolbar"><h3>Recent comments</h3></div><div id="comments"></div></section>
+<section id="newsletterTab" style="display:none"><div class="toolbar"><h3>Newsletter subscribers</h3></div><div id="newsletter"></div></section>
+<div id="dashStatus" class="status"></div>
 </div>
 </div></div></main>
 <footer><div class="wrap"><strong>THE KENZIE REPORT</strong><p>Private moderation tools. Keep access credentials secure.</p></div></footer>
@@ -44,41 +49,17 @@ const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 function esc(s=''){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt(v){const d=new Date(v);return Number.isNaN(d.getTime())?'':d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}
 function setStatus(id,msg,error=false){const el=document.getElementById(id);if(el){el.textContent=msg;el.className='status'+(error?' error':'')}}
-async function signIn(){
- const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
- if(!email||!password){setStatus('loginStatus','Enter your email and password.',true);return}
- setStatus('loginStatus','Signing in…');
- const r=await sb.auth.signInWithPassword({email,password});
- if(r.error){setStatus('loginStatus',r.error.message,true);return}
- await loadReports();
-}
+async function signIn(){const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;if(!email||!password){setStatus('loginStatus','Enter your email and password.',true);return}setStatus('loginStatus','Signing in…');const r=await sb.auth.signInWithPassword({email,password});if(r.error){setStatus('loginStatus',r.error.message,true);return}await loadDashboard()}
 async function signOut(){await sb.auth.signOut();document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';document.getElementById('password').value='';setStatus('loginStatus','Signed out.')}
-async function loadReports(){
- const s=await sb.auth.getSession();const user=s.data?.session?.user;
- if(!user){document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';return}
- const check=await sb.from('debate_moderators').select('user_id').eq('user_id',user.id).maybeSingle();
- if(check.error){setStatus('loginStatus',check.error.message,true);return}
- if(!check.data){document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';setStatus('loginStatus','This account is not authorised as a moderator.',true);await sb.auth.signOut();return}
- document.getElementById('login').style.display='none';document.getElementById('dashboard').style.display='block';
- const box=document.getElementById('reports');box.innerHTML='<div class="empty">Loading reports…</div>';
- const r=await sb.from('debate_comment_reports').select('id,comment_id,user_id,reason,status,created_at,debate_comments(display_name,body,debate_id)').eq('status','open').order('created_at',{ascending:true});
- if(r.error){box.innerHTML='';setStatus('dashStatus',r.error.message,true);return}
- const rows=r.data||[];
- box.innerHTML=rows.length?rows.map(x=>`<div class="report"><div class="meta">${esc(fmt(x.created_at))} · Open report</div><div class="body"><strong>${esc(x.debate_comments?.display_name||'Unknown')}</strong>: ${esc(x.debate_comments?.body||'[comment unavailable]')}<br><br><strong>Reason:</strong> ${esc(x.reason||'No reason given')}</div><div class="actions"><button class="danger" onclick="moderate('${esc(x.comment_id)}','${esc(x.id)}',true)">Hide comment</button><button class="secondary" onclick="moderate('${esc(x.comment_id)}','${esc(x.id)}',false)">Dismiss report</button></div></div>`).join(''):'<div class="empty">No open reports. You’re all clear. ✓</div>';
- setStatus('dashStatus',rows.length+' open '+(rows.length===1?'report':'reports'));
-}
-async function moderate(commentId,reportId,hide){
- const s=await sb.auth.getSession();if(!s.data?.session)return;
- const check=await sb.from('debate_moderators').select('user_id').eq('user_id',s.data.session.user.id).maybeSingle();
- if(check.error||!check.data){setStatus('dashStatus','Moderator access could not be verified.',true);return}
- if(hide){
-  const cr=await sb.from('debate_comments').update({status:'hidden',updated_at:new Date().toISOString()}).eq('id',commentId);
-  if(cr.error){setStatus('dashStatus',cr.error.message,true);return}
- }
- const rr=await sb.from('debate_comment_reports').update({status:hide?'reviewed':'dismissed'}).eq('id',reportId);
- if(rr.error){setStatus('dashStatus',rr.error.message,true);return}
- await loadReports();
-}
+function showTab(name,btn){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));if(btn)btn.classList.add('active');document.getElementById('reportsTab').style.display=name==='reports'?'block':'none';document.getElementById('commentsTab').style.display=name==='comments'?'block':'none';document.getElementById('newsletterTab').style.display=name==='newsletter'?'block':'none'}
+async function verifyModerator(){const s=await sb.auth.getSession();const user=s.data?.session?.user;if(!user)return null;const check=await sb.from('debate_moderators').select('user_id').eq('user_id',user.id).maybeSingle();if(check.error||!check.data)return null;return user}
+async function loadStats(){const ids=['debate_comments','debate_comment_reports','article_likes','newsletter_subscribers'];const results=await Promise.all(ids.map(t=>sb.from(t).select('*',{count:'exact',head:true})));const values=results.map(x=>x.count||0);document.getElementById('stats').innerHTML='<div class="stat-card"><strong>'+values[0]+'</strong><span>Comments</span></div><div class="stat-card"><strong>'+values[1]+'</strong><span>Reports</span></div><div class="stat-card"><strong>'+values[2]+'</strong><span>Article likes</span></div><div class="stat-card"><strong>'+values[3]+'</strong><span>Subscribers</span></div>'}
+async function loadReports(){const r=await sb.from('debate_comment_reports').select('id,comment_id,reason,status,created_at,debate_comments(display_name,body,debate_id)').eq('status','open').order('created_at',{ascending:true});if(r.error){setStatus('dashStatus',r.error.message,true);return}const rows=r.data||[];document.getElementById('reports').innerHTML=rows.length?rows.map(x=>'<div class="report-row"><div class="meta">'+esc(fmt(x.created_at))+' · Open report</div><div class="body"><strong>'+esc(x.debate_comments?.display_name||'Unknown')+'</strong>: '+esc(x.debate_comments?.body||'[comment unavailable]')+'<br><br><strong>Reason:</strong> '+esc(x.reason||'No reason given')+'</div><div class="actions"><button class="danger" onclick="moderate(\''+esc(x.comment_id)+'\',\''+esc(x.id)+'\',true)">Hide comment</button><button class="secondary" onclick="moderate(\''+esc(x.comment_id)+'\',\''+esc(x.id)+'\',false)">Dismiss report</button></div></div>').join(''):'<div class="empty">No open reports. You’re all clear. ✓</div>';setStatus('dashStatus',rows.length+' open '+(rows.length===1?'report':'reports'))}
+async function loadComments(){const r=await sb.from('debate_comments').select('id,debate_id,display_name,body,status,created_at').order('created_at',{ascending:false}).limit(50);if(r.error){setStatus('dashStatus',r.error.message,true);return}document.getElementById('comments').innerHTML=(r.data||[]).map(x=>'<div class="report-row"><div class="meta">'+esc(fmt(x.created_at))+' · '+esc(x.debate_id)+'</div><div class="body"><strong>'+esc(x.display_name)+'</strong>: '+esc(x.body)+'</div><div class="actions"><span class="comment-state">'+esc(x.status)+'</span>'+((x.status==='published'||x.status==='hidden')?'<button class="secondary" onclick="toggleComment(\''+esc(x.id)+'\',\''+(x.status==='published'?'hidden':'published')+'\')">'+(x.status==='published'?'Hide':'Restore')+'</button>':'')+'</div></div>').join('')||'<div class="empty">No comments yet.</div>'}
+async function loadNewsletter(){const r=await sb.from('newsletter_subscribers').select('email,created_at').order('created_at',{ascending:false}).limit(200);if(r.error){setStatus('dashStatus',r.error.message,true);return}document.getElementById('newsletter').innerHTML=(r.data||[]).map(x=>'<div class="sub-row"><span>'+esc(x.email)+'</span><span class="muted">'+esc(fmt(x.created_at))+'</span></div>').join('')||'<div class="empty">No subscribers yet.</div>'}
+async function toggleComment(id,status){const r=await sb.from('debate_comments').update({status:status,updated_at:new Date().toISOString()}).eq('id',id);if(r.error){setStatus('dashStatus',r.error.message,true);return}await loadComments();await loadStats()}
+async function moderate(commentId,reportId,hide){const user=await verifyModerator();if(!user){setStatus('dashStatus','Moderator access could not be verified.',true);return}if(hide){const cr=await sb.from('debate_comments').update({status:'hidden',updated_at:new Date().toISOString()}).eq('id',commentId);if(cr.error){setStatus('dashStatus',cr.error.message,true);return}}const rr=await sb.from('debate_comment_reports').update({status:hide?'reviewed':'dismissed'}).eq('id',reportId);if(rr.error){setStatus('dashStatus',rr.error.message,true);return}await loadDashboard()}
+async function loadDashboard(){const user=await verifyModerator();if(!user){document.getElementById('dashboard').style.display='none';document.getElementById('login').style.display='block';setStatus('loginStatus','This account is not authorised as a moderator.',true);return}document.getElementById('login').style.display='none';document.getElementById('dashboard').style.display='block';await Promise.all([loadStats(),loadReports(),loadComments(),loadNewsletter()])}
 (async()=>{const s=await sb.auth.getSession();if(s.data?.session)await loadReports()})();
 </script>
 </body>
