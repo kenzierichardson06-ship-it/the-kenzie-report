@@ -9,7 +9,7 @@ content:
     path: articles
     filename: "{primary}.md"
     view:
-      fields: [title, section, featured, date]
+      fields: [title, section, featured, published, author, date]
       primary: title
       sort: [date, title]
       default:
@@ -46,6 +46,26 @@ content:
         label: Feature on homepage
         type: boolean
         default: false
+      - name: published
+        label: Published
+        type: boolean
+        default: true
+      - name: author
+        label: Author
+        type: string
+        default: Kenzie Richardson
+      - name: tags
+        label: Tags (comma separated)
+        type: string
+      - name: seo_description
+        label: SEO description
+        type: string
+      - name: social_title
+        label: Social headline
+        type: string
+      - name: social_image
+        label: Social image
+        type: image
       - name: excerpt
         label: Standfirst
         type: string
