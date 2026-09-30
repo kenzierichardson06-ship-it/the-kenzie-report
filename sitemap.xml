@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://thekenziereport.co.uk/</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Latest</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Politics</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Reform</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Britain</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Westminster</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Economy</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=NHS</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Immigration</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Opinion</loc></url>
+  <url><loc>https://thekenziereport.co.uk/?section=Analysis</loc></url>
+  <url><loc>https://thekenziereport.co.uk/articles/2026-09-25-welcome-to-the-kenzie-report.html</loc></url>
 </urlset>
